@@ -1,8 +1,9 @@
 package com.superbuilt.mini.issue;
-
+import org.springframework.transaction.annotation.Transactional;
 import com.superbuilt.mini.project.Project;
 import com.superbuilt.mini.project.ProjectRepository;
 import org.springframework.stereotype.Service;
+import com.superbuilt.mini.ai.IssueDetectionResult;
 
 import java.util.List;
 
@@ -11,13 +12,16 @@ public class IssueService {
 
     private final IssueRepository issueRepository;
     private final ProjectRepository projectRepository;
+    private final IssueEmbeddingService issueEmbeddingService;
 
     public IssueService(
             IssueRepository issueRepository,
-            ProjectRepository projectRepository
+            ProjectRepository projectRepository,
+            IssueEmbeddingService issueEmbeddingService
     ) {
         this.issueRepository = issueRepository;
         this.projectRepository = projectRepository;
+        this.issueEmbeddingService=issueEmbeddingService;
     }
 
     public Issue createIssue(Long projectId, Issue issue) {
@@ -79,5 +83,31 @@ public class IssueService {
                                 "Issue not found with id: " + id
                         )
                 );
+    }
+
+    @Transactional
+    public Issue createIssueFromAiDetection(
+            Long projectId,
+            IssueDetectionResult result
+    ) {
+
+        Issue issue = Issue.builder()
+                .title(result.title())
+                .description(result.description())
+                .type(IssueType.valueOf(result.issueType()))
+                .severity(IssueSeverity.valueOf(result.severity()))
+                .status(IssueStatus.OPEN)
+                .source(IssueSource.AI_DETECTION)
+                .requiresDecision(result.requiresDecision())
+                .confidenceScore(result.confidenceScore())
+                .riskScore(result.riskScore())
+                .build();
+
+        Issue savedIssue = createIssue(projectId, issue);
+
+        // Create semantic memory for this issue
+        issueEmbeddingService.createEmbedding(savedIssue);
+
+        return savedIssue;
     }
 }

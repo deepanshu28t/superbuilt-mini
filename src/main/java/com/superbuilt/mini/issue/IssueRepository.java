@@ -16,4 +16,9 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByProjectIdAndRequiresDecisionTrue(
             Long projectId
     );
+
+    boolean existsByProjectIdAndTitleIgnoreCase(
+            Long projectId,
+            String title
+    );
 }
