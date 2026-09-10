@@ -1,8 +1,11 @@
 package com.superbuilt.mini.action;
 
+import com.superbuilt.mini.exception.ResourceNotFoundException;
 import com.superbuilt.mini.issue.Issue;
 import com.superbuilt.mini.issue.IssueRepository;
+import com.superbuilt.mini.issue.IssueStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,7 +27,7 @@ public class ActionService {
 
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Issue not found with id: " + issueId
                         )
                 );
@@ -37,8 +40,8 @@ public class ActionService {
     public List<Action> getActionsByIssue(Long issueId) {
 
         if (!issueRepository.existsById(issueId)) {
-            throw new RuntimeException(
-                    "Issue not found with id: " + issueId
+            throw new ResourceNotFoundException(
+                    "issue not found with id: " + issueId
             );
         }
 
@@ -58,11 +61,28 @@ public class ActionService {
         );
     }
 
+    @Transactional
+    public Action updateActionStatus(
+            Long actionId,
+            ActionStatus status
+    ) {
+
+        Action action = actionRepository.findById(actionId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Action not found with id: " + actionId
+                        )
+                );
+
+        action.setStatus(status);
+
+        return actionRepository.save(action);
+    }
     public Action getActionById(Long id) {
 
         return actionRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Action not found with id: " + id
                         )
                 );

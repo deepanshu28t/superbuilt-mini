@@ -6,8 +6,10 @@ import com.superbuilt.mini.action.ActionService;
 import com.superbuilt.mini.action.ActionStatus;
 import com.superbuilt.mini.issue.Issue;
 import com.superbuilt.mini.issue.IssueService;
+import com.superbuilt.mini.issue.IssueSeverity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.superbuilt.mini.notification.NotificationService;
 
 @Service
 public class CoordinationAgentService {
@@ -17,19 +19,23 @@ public class CoordinationAgentService {
     private final IssueService issueService;
     private final ActionService actionService;
     private final IssueDuplicateService issueDuplicateService;
+    private final NotificationService notificationService;
 
     public CoordinationAgentService(
             IssueDetectionService issueDetectionService,
             IssueDetectionValidator validator,
             IssueService issueService,
             ActionService actionService,
-            IssueDuplicateService issueDuplicateService
+            IssueDuplicateService issueDuplicateService,
+            NotificationService notificationService
     ) {
         this.issueDetectionService = issueDetectionService;
         this.validator = validator;
         this.issueService = issueService;
         this.actionService = actionService;
         this.issueDuplicateService = issueDuplicateService;
+        this.notificationService=notificationService;
+
     }
 
     @Transactional
@@ -38,7 +44,7 @@ public class CoordinationAgentService {
             String question
     ) {
 
-        // 1. Analyze project evidence
+      // 1. Analyze project evidence
         IssueDetectionResult detection =
                 issueDetectionService.analyze(
                         projectId,
@@ -90,6 +96,7 @@ public class CoordinationAgentService {
                         detection
                 );
 
+
         // 6. Create Action
         Action action = Action.builder()
                 .title(detection.recommendedAction())
@@ -108,6 +115,11 @@ public class CoordinationAgentService {
                         issue.getId(),
                         action
                 );
+
+        notificationService.handleIssueNotification(
+                issue,
+                action
+        );
 
         // 7. Return result
         return new AgentExecutionResult(

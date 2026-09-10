@@ -21,4 +21,10 @@ public interface ActionRepository extends JpaRepository<Action, Long> {
     );
 
 
+    long countByIssueProjectIdAndStatusNot(
+            Long projectId,
+            ActionStatus status
+    );
+
+
 }

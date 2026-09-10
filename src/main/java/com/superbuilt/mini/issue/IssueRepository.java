@@ -13,6 +13,20 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
             IssueStatus status
     );
 
+    long countByProjectId(Long projectId);
+
+    long countByProjectIdAndStatus(
+            Long projectId,
+            IssueStatus status
+    );
+
+    long countByProjectIdAndSeverity(
+            Long projectId,
+            IssueSeverity severity
+    );
+
+    long countByProjectIdAndRequiresDecisionTrue(Long projectId);
+
     List<Issue> findByProjectIdAndRequiresDecisionTrue(
             Long projectId
     );

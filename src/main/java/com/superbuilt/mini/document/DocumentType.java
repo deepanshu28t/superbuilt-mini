@@ -5,6 +5,7 @@ public enum DocumentType {
     DRAWING,
     SPECIFICATION,
     REPORT,
+    ELECTRICAL,
     RFI_ATTACHMENT,
     OTHER
 }

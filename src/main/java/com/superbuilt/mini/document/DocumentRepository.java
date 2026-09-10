@@ -7,4 +7,11 @@ import java.util.List;
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     List<Document> findByProjectId(Long projectId);
+
+    long countByProjectId(Long projectId);
+
+    long countByProjectIdAndStatus(
+            Long projectId,
+            DocumentStatus status
+    );
 }

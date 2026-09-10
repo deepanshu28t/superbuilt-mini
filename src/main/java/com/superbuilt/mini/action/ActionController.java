@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/actions")
 public class ActionController {
 
     private final ActionService actionService;
@@ -28,6 +28,18 @@ public class ActionController {
             @PathVariable Long issueId
     ) {
         return actionService.getActionsByIssue(issueId);
+    }
+
+    @PatchMapping("/{actionId}/status")
+    public Action updateActionStatus(
+            @PathVariable Long actionId,
+            @RequestBody UpdateActionStatusRequest request
+    ) {
+
+        return actionService.updateActionStatus(
+                actionId,
+                request.status()
+        );
     }
 
     @GetMapping("/projects/{projectId}/actions")

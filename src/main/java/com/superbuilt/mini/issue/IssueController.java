@@ -24,6 +24,18 @@ public class IssueController {
         return issueService.createIssue(projectId, issue);
     }
 
+    @PatchMapping("/{issueId}/status")
+    public Issue updateIssueStatus(
+            @PathVariable Long issueId,
+            @RequestBody UpdateIssueStatusRequest request
+    ) {
+       System.out.println("issue status");
+        return issueService.updateIssueStatus(
+                issueId,
+                request.status()
+        );
+    }
+
     @GetMapping
     public List<Issue> getIssues(
             @PathVariable Long projectId

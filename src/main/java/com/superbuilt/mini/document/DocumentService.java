@@ -1,9 +1,9 @@
 package com.superbuilt.mini.document;
 
+import com.superbuilt.mini.exception.ResourceNotFoundException;
 import com.superbuilt.mini.project.Project;
 import com.superbuilt.mini.project.ProjectRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
@@ -24,8 +24,9 @@ public class DocumentService {
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() ->
-                        new RuntimeException("Project not found with id: " + projectId)
-                );
+                        new ResourceNotFoundException(
+                                "Project not found with id: " + projectId
+                        )             );
 
         document.setProject(project);
 
@@ -35,7 +36,7 @@ public class DocumentService {
     public List<Document> getDocumentsByProject(Long projectId) {
 
         if (!projectRepository.existsById(projectId)) {
-            throw new RuntimeException(
+            throw new ResourceNotFoundException(
                     "Project not found with id: " + projectId
             );
         }
@@ -47,7 +48,8 @@ public class DocumentService {
 
         return documentRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Document not found with id: " + id)
-                );
+                        new ResourceNotFoundException(
+                                "Document not found with id: " + id
+                        )                );
     }
 }
