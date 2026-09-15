@@ -1,7 +1,5 @@
 package com.superbuilt.mini.document.processing;
 
-import com.superbuilt.mini.document.Document;
-import com.superbuilt.mini.document.DocumentRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,14 +10,11 @@ import java.util.Map;
 @RequestMapping("/api/documents")
 public class DocumentProcessingController {
 
-    private final DocumentRepository documentRepository;
     private final DocumentProcessor documentProcessor;
 
     public DocumentProcessingController(
-            DocumentRepository documentRepository,
             DocumentProcessor documentProcessor
     ) {
-        this.documentRepository = documentRepository;
         this.documentProcessor = documentProcessor;
     }
 
@@ -28,19 +23,12 @@ public class DocumentProcessingController {
             @PathVariable Long documentId
     ) throws IOException {
 
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Document not found with id: " + documentId
-                        )
-                );
-
-        int chunkCount = documentProcessor.processPdf(document);
+        int chunkCount = documentProcessor.processPdf(documentId);
 
         return ResponseEntity.ok(
                 Map.of(
                         "documentId", documentId,
-                        "status", document.getStatus(),
+                        "status", "PROCESSED",
                         "chunkCount", chunkCount
                 )
         );

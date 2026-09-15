@@ -20,7 +20,7 @@ public class DocumentSearchController {
     public List<SearchResult> search(
             @PathVariable Long projectId,
             @RequestParam String query,
-            @RequestParam(defaultValue = "5") int limit
+            @RequestParam(defaultValue = "1") int limit
     ) {
 
         return searchService.search(

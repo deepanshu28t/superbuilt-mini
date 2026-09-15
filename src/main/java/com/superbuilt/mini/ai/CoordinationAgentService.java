@@ -75,7 +75,6 @@ public class CoordinationAgentService {
                         detection.title(),
                         detection.description()
                 );
-
         if (existingIssue != null) {
 
             return new AgentExecutionResult(

@@ -37,4 +37,13 @@ public class DocumentController {
     ) {
         return documentService.getDocumentById(documentId);
     }
+
+    @DeleteMapping("/{documentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteDocument(
+            @PathVariable Long projectId,
+            @PathVariable Long documentId
+    ) {
+        documentService.deleteDocument(projectId, documentId);
+    }
 }

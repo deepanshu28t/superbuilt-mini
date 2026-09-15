@@ -163,6 +163,25 @@ Vector Storage
 
 Apache PDFBox will initially be used for PDF text extraction.
 
+### Current backend workflow
+
+`POST /api/projects/{projectId}/documents` persists document metadata and then
+automatically invokes the existing PDF processor. The processor reads the PDF
+from `app.document-storage-path` plus the document's `filePath`, extracts text,
+chunks it, generates embeddings, and stores the chunks in pgvector. The
+document is returned after processing with status `PROCESSED`.
+
+`POST /api/documents/{documentId}/process` remains available for explicit
+reprocessing, for example after replacing a file at the same path. The current
+endpoint accepts document metadata rather than multipart file bytes; multipart
+file storage is a separate future increment.
+
+Automatic issue/action creation is also deliberately separate for now. The
+existing AI workflow needs an analysis question and sends mail only to the
+configured mailbox; it does not yet resolve an assignee role to an email
+address. Once role-to-email mapping and a document-specific analysis prompt are
+added, the automatic processing completion can safely invoke that workflow.
+
 ---
 
 ## Feature 3 — RFI Intelligence
@@ -1384,4 +1403,3 @@ For every implementation step, we will cover:
 10. Interview questions that can come from it
 
 We will not move to the next major component until the current component is working.
-

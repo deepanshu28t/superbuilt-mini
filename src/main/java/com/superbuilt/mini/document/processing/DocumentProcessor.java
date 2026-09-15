@@ -4,7 +4,9 @@ import com.superbuilt.mini.ai.EmbeddingService;
 import com.superbuilt.mini.document.Document;
 import com.superbuilt.mini.document.DocumentChunk;
 import com.superbuilt.mini.document.DocumentChunkRepository;
+import com.superbuilt.mini.document.DocumentRepository;
 import com.superbuilt.mini.document.DocumentStatus;
+import com.superbuilt.mini.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ public class DocumentProcessor {
 
     private final PdfTextExtractor pdfTextExtractor;
     private final TextChunker textChunker;
+    private final DocumentRepository documentRepository;
     private final DocumentChunkRepository documentChunkRepository;
     private final DocumentStorageProperties storageProperties;
     private final EmbeddingService embeddingService;
@@ -24,19 +27,26 @@ public class DocumentProcessor {
     public DocumentProcessor(
             PdfTextExtractor pdfTextExtractor,
             TextChunker textChunker,
+            DocumentRepository documentRepository,
             DocumentChunkRepository documentChunkRepository,
             DocumentStorageProperties storageProperties,
             EmbeddingService embeddingService
     ) {
         this.pdfTextExtractor = pdfTextExtractor;
         this.textChunker = textChunker;
+        this.documentRepository = documentRepository;
         this.documentChunkRepository = documentChunkRepository;
         this.storageProperties = storageProperties;
         this.embeddingService = embeddingService;
     }
 
     @Transactional
-    public int processPdf(Document document) throws IOException {
+    public int processPdf(Long documentId) throws IOException {
+
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Document not found with id: " + documentId
+                ));
 
         document.setStatus(DocumentStatus.PROCESSING);
 
@@ -80,5 +90,12 @@ public class DocumentProcessor {
         document.setStatus(DocumentStatus.PROCESSED);
 
         return chunks.size();
+    }
+
+    /**
+     * Retained for callers that already hold a document instance.
+     */
+    public int processPdf(Document document) throws IOException {
+        return processPdf(document.getId());
     }
 }
